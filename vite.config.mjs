@@ -3,19 +3,42 @@ import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
 import tagger from "@dhiwise/component-tagger";
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  // This changes the out put dir from dist to build
-  // comment this out if that isn't relevant for your project
   build: {
-    outDir: "build",
+    outDir: "build", // Keep this as you're using 'build' instead of 'dist'
     chunkSizeWarningLimit: 2000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Optimize chunks for your multi-interface app
+          "customer-bundle": [
+            "./src/pages/menu-browse-search",
+            "./src/pages/item-detail-customization",
+            "./src/pages/shopping-cart-checkout",
+          ],
+          "admin-bundle": [
+            "./src/pages/restaurant-admin-dashboard",
+            "./src/components/ui/AdminNavigation",
+          ],
+          "kitchen-bundle": [
+            "./src/pages/kitchen-display-system",
+            "./src/components/ui/KitchenInterface",
+          ],
+        },
+      },
+    },
   },
   plugins: [tsconfigPaths(), react(), tagger()],
   server: {
     port: "4028",
     host: "0.0.0.0",
     strictPort: true,
-    allowedHosts: ['.amazonaws.com', '.builtwithrocket.new']
-  }
+    allowedHosts: [".amazonaws.com", ".builtwithrocket.new"],
+  },
+  // Vercel-specific optimizations
+  base: "/", // Ensure proper base path
+  preview: {
+    port: 4028,
+    strictPort: true,
+  },
 });
